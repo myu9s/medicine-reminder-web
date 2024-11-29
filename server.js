@@ -8,7 +8,7 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 // Middleware
 app.use(cors({
-    origin: '*', // Allow all origins for testing
+    origin: '*',  // Allow all origins for testing
     methods: ['GET', 'POST', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
@@ -57,43 +57,49 @@ function getCurrentWIBTime() {
 }
 
 // API Endpoints
-app.get('/api/alarms', authenticateToken, (req, res) => {
+app.get('/api/alarms', (req, res) => {
     res.json(alarms);
 });
 
-app.post('/api/alarms', authenticateToken, (req, res) => {
+app.post('/api/alarms', (req, res) => {
     alarms = req.body;
     res.json({ message: 'Alarms updated successfully' });
 });
 
-app.get('/api/time', authenticateToken, (req, res) => {
+app.get('/api/time', (req, res) => {
     const wibTime = getCurrentWIBTime();
     res.json({
         hour: wibTime.getHours(),
         minute: wibTime.getMinutes(),
-        second: wibTime.getSeconds(),
-        timestamp: wibTime.toISOString()
+        second: wibTime.getSeconds()
     });
 });
 
 // Health check endpoint for Railway
 app.get('/health', (req, res) => {
-    res.json({ status: 'healthy' });
-});
-
-// Error handling
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).json({ error: 'Internal Server Error' });
+    res.json({ 
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+        timezone: 'WIB'
+    });
 });
 
 // Root route
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'login.html'));
+    res.json({ 
+        message: 'Medicine Reminder API Server',
+        version: '1.0.0',
+        endpoints: [
+            '/api/login',
+            '/api/alarms',
+            '/api/time',
+            '/health'
+        ]
+    });
 });
 
 // Start server
-app.listen(PORT, '0.0.0.0', () => {
+app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
     console.log(`Server time (WIB):`, getCurrentWIBTime().toISOString());
 });
