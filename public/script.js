@@ -4,7 +4,7 @@ let alarmsB = [];
 let alarmsC = [];
 
 // Base URL untuk API
-const API_BASE_URL = 'https://shocking-wide-coal.glitch.me';
+const API_BASE_URL = 'https://medicine-reminder-web-production.up.railway.app';
 
 // Fungsi untuk menambah alarm
 function addAlarm(laci) {
