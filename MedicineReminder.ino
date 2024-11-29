@@ -9,9 +9,9 @@
 const char* ssid = "POCO F6";
 const char* password = "123456789";
 
-// URL Server - Sesuai dengan IP komputer Anda
-const char* serverUrl = "https://[USERNAME].github.io/medicine-reminder-web";  // Ganti [USERNAME] dengan username GitHub Anda
-const char* timeUrl = "http://192.168.59.37:3000/api/time";
+// Server URLs - menggunakan Glitch (gratis, tanpa kartu kredit)
+const char* serverUrl = "https://medicine-reminder.glitch.me";  // Akan kita deploy ke Glitch
+const char* apiUrl = "/api";
 
 // Pin Definition untuk ESP32 CH340
 #define BUZZER_PIN 13
@@ -73,12 +73,13 @@ void updateAlarmsFromServer() {
     if (WiFi.status() == WL_CONNECTED) {
         HTTPClient http;
         
-        // Gunakan endpoint yang sesuai
-        String url = String(serverUrl) + "/api/alarms";
+        // Gunakan endpoint API yang lengkap
+        String url = String(serverUrl) + apiUrl + "/alarms";
         http.begin(url);
         
-        // Tambahkan header Authorization jika diperlukan
+        // Tambahkan header untuk CORS dan Content-Type
         http.addHeader("Content-Type", "application/json");
+        http.addHeader("Origin", "https://myu9s.github.io");
         
         int httpResponseCode = http.GET();
         
@@ -423,5 +424,37 @@ void handleActiveAlarms() {
         digitalWrite(LED_B_PIN, LOW);
         digitalWrite(LED_C_PIN, LOW);
         noTone(BUZZER_PIN);
+    }
+}
+
+void syncTimeFromServer() {
+    if (WiFi.status() == WL_CONNECTED) {
+        HTTPClient http;
+        String timeEndpoint = String(serverUrl) + apiUrl + "/time";  
+        http.begin(timeEndpoint);
+        
+        int httpCode = http.GET();
+        
+        if (httpCode == HTTP_CODE_OK) {
+            String payload = http.getString();
+            DynamicJsonDocument doc(200);
+            DeserializationError error = deserializeJson(doc, payload);
+            
+            if (!error) {
+                int hour = doc["hour"];
+                int minute = doc["minute"];
+                int second = doc["second"];
+                
+                // Update RTC
+                DateTime now = rtc.now();
+                rtc.adjust(DateTime(now.year(), now.month(), now.day(), hour, minute, second));
+                Serial.printf("Time synced - %02d:%02d:%02d\n", hour, minute, second);
+            }
+        } else {
+            Serial.print("Error getting time: ");
+            Serial.println(httpCode);
+        }
+        
+        http.end();
     }
 }

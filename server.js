@@ -1,7 +1,5 @@
 const express = require('express');
 const cors = require('cors');
-const fs = require('fs').promises;
-const path = require('path');
 const jwt = require('jsonwebtoken');
 
 const app = express();
@@ -10,16 +8,14 @@ const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
 // Middleware
 app.use(cors({
-    origin: ['https://myu9s.github.io', 'http://localhost:3000'],
+    origin: '*', // Allow all origins for testing
     methods: ['GET', 'POST', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 app.use(express.json());
-
-// Serve static files
 app.use(express.static('public'));
 
-// In-memory alarm storage (untuk cloud deployment)
+// In-memory alarm storage
 let alarms = { laciA: [], laciB: [], laciC: [] };
 
 // Authentication middleware
@@ -78,6 +74,11 @@ app.get('/api/time', authenticateToken, (req, res) => {
         second: wibTime.getSeconds(),
         timestamp: wibTime.toISOString()
     });
+});
+
+// Health check endpoint for Railway
+app.get('/health', (req, res) => {
+    res.json({ status: 'healthy' });
 });
 
 // Error handling

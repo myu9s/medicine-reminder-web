@@ -4,7 +4,7 @@ let alarmsB = [];
 let alarmsC = [];
 
 // Base URL untuk API
-const API_BASE_URL = 'http://localhost:3000';
+const API_BASE_URL = 'https://medicine-reminder.glitch.me';
 
 // Fungsi untuk menambah alarm
 function addAlarm(laci) {
