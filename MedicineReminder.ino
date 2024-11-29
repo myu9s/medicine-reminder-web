@@ -10,7 +10,7 @@ const char* ssid = "POCO F6";
 const char* password = "123456789";
 
 // Server URLs - menggunakan Glitch (gratis, tanpa kartu kredit)
-const char* serverUrl = "https://medicine-reminder.glitch.me";  // Akan kita deploy ke Glitch
+const char* serverUrl = "https://shocking-wide-coal.glitch.me";  // URL Glitch yang aktif
 const char* apiUrl = "/api";
 
 // Pin Definition untuk ESP32 CH340
